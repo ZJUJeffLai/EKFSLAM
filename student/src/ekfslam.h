@@ -21,7 +21,7 @@ class EKFSLAM {
     Eigen::MatrixXd Q;
     // Vector of observed landmarks
     vector<bool> observedLandmarks;
-    
+
  public:
     // Default Constructor
     EKFSLAM();
