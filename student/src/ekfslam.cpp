@@ -22,11 +22,13 @@ EKFSLAM::EKFSLAM(unsigned int landmark_size,unsigned int robot_pose_size = 3,flo
     Sigma.bottomRightCorner(2*landmark_size,2*landmark_size) = mapSigma;
 
     float motion_noise = _motion_noise;
-    Q = MatrixXd:Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
-    Q.topLeftCorner(3,3)<<motion_noise,0,0,
+    R = MatrixXd:Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
+    R.topLeftCorner(3,3)<<motion_noise,0,0,
         0,motion_noise,0,
         0,0,motion_noise/10;
     
+
+
     observedLandmarks.resize(landmark_size);
     fill(observedLandmarks.begin(),observedLandmarks.end(),false);
 }
