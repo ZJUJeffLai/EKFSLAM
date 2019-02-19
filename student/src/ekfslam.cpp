@@ -25,7 +25,7 @@ EKFSLAM::EKFSLAM(unsigned int landmark_size,unsigned int robot_pose_size = 3,flo
     R = MatrixXd:Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
     R.topLeftCorner(3,3)<<motion_noise,0,0,
         0,motion_noise,0,
-        0,0,motion_noise/10;
+        0,0,motion_noise;
     
 
 
@@ -40,7 +40,31 @@ EKFSLAM::EKFSLAM(unsigned int landmark_size,unsigned int robot_pose_size = 3,flo
 
 void EKFSLAM::Prediction(const OdoReading& motion)
 {
+    double angle = mu(2);
+    double r1 = motion.r1;
+    double t = motion.t;
+    double r2 = motion.r2;
 
+    MatrixXd Gt = MatrixXd(3,3);
+    
+    float value_cos = cos(angle+r1);
+    float value_sin = sin(angle+r1);
+    Gt<<1,0,-t*value_sin,
+        0,1,t*value_cos,
+        0,0,0;
+    
+    mu(0) = mu(0) + t*value_cos;
+    mu(1) = mu(1) + t*value_sin;
+    mu(2) = mu(2) + r1 + r2;
+
+    int sigma_cols = Sigma.cols();
+    Sigma.topLeftCorner(3,3) = Gt*Sigma.topLeftCorner(3,3)*Gt.transpose();
+    Sigma.topRightCorner(3,sigma_cols-3) = Gt*Sigma.topRightCorner(3,sigma_cols-3);
+    Sigma.bottomLeftCorner(sigma_cols-3,3) = Sigma.topRightCorner(3,sigma_cols-3).transpose();
+
+    Sigma = Sigma + R;
+
+    
 }
 
 
