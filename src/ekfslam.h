@@ -7,18 +7,25 @@ class EKFSLAM {
  private:
     // Covariance Matrix for robot state variables
     Eigen::MatrixXd robotSigma;
+    
     // Covariance Matrix for robot to landmarks
     Eigen::MatrixXd robMapSigma;
+    
     // Covariances of landmark positions wrt to each other
     Eigen::MatrixXd mapSigma;
+    
     // Full Covariance Matrix
     Eigen::MatrixXd Sigma;
+    
     // Full State Vector
     Eigen::VectorXd mu;
+    
     // Noise Matrix due to motion
     Eigen::MatrixXd R;
+    
     // Noise Matrix due to sensors
     Eigen::MatrixXd Q;
+    
     // Vector of observed landmarks
     vector<bool> observedLandmarks;
 

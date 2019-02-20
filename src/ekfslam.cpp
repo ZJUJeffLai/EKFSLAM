@@ -11,26 +11,25 @@
 EKFSLAM::EKFSLAM(unsigned int landmark_size,unsigned int robot_pose_size = 3,float _motion_noise = 0.1)
 {
     //full state vector(initialization)
-    mu = VectorXd::Zero(2*landmark_size + robot_pose_size,1);
-    robotSigma = MatrixXd::Zero(robot_pose_size,robot_pose_size);
-    robMapSigma = MatrixXd::Zero(robot_pose_size,2*landmark_size);
-    mapSigma = INF*MatrixXd::Identity(2*landmark_size,2*landmark_size);
-    Sigma = MatrixXd::Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
+    int ls = landmark_size;
+    int rps = robot_pose_size;
+    mu = VectorXd::Zero(2*ls + rps,1);
+    robotSigma = MatrixXd::Zero(rps,rps);
+    robMapSigma = MatrixXd::Zero(rps,2*ls);
+    mapSigma = INF*MatrixXd::Identity(2*ls,2*ls);
+    Sigma = MatrixXd::Zero(2*ls+rps,2*ls+rps);
 
-    Sigma.topLeftCorner(robot_pose_size,robot_pose_size) = robotSigma;
-    Sigma.topRightCorner(robot_pose_size,2*landmark_size) = robMapSigma;
-    Sigma.bottomLeftCorner(2*landmark_size,robot_pose_size) = robMapSigma.transpose();
-    Sigma.bottomRightCorner(2*landmark_size,2*landmark_size) = mapSigma;
+    Sigma.topLeftCorner(rps,rps) = robotSigma;
+    Sigma.topRightCorner(rps,2*ls) = robMapSigma;
+    Sigma.bottomLeftCorner(2*ls,rps) = robMapSigma.transpose();
+    Sigma.bottomRightCorner(2*ls,2*ls) = mapSigma;
 
     float motion_noise = _motion_noise;
-    R = MatrixXd:Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
+    R = MatrixXd:Zero(2*ls+rps,2*ls+rps);
     R.topLeftCorner(3,3)<<motion_noise,0,0,
-        0,motion_noise,0,
-        0,0,motion_noise;
-
-
-
-    observedLandmarks.resize(landmark_size);
+                          0,motion_noise,0,
+                          0,0,motion_noise;
+    observedLandmarks.resize(ls);
     fill(observedLandmarks.begin(),observedLandmarks.end(),false);
 }
 
@@ -46,6 +45,7 @@ void EKFSLAM::Prediction(const OdoReading& motion)
     double t = motion.t; //translation
     double r2 = motion.r2; //rotation
 
+    //Gt: Jecobian of the motion (3*3)
     MatrixXd Gt = MatrixXd(3,3);
 
     float value_cos = cos(angle+r1);
@@ -64,8 +64,6 @@ void EKFSLAM::Prediction(const OdoReading& motion)
     Sigma.bottomLeftCorner(sigma_cols-3,3) = Sigma.topRightCorner(3,sigma_cols-3).transpose();
 
     Sigma = Sigma + R;
-
-
 }
 
 
@@ -76,7 +74,27 @@ void EKFSLAM::Prediction(const OdoReading& motion)
     // Struct VelReading: float linearVel, angularVel
 void EKFSLAM::Prediction(const VelReading& motion)
 {
+    float linearVel = motion.linearVel;
+    float angularVel = motion.angularVel;
+    double angle = mu(2);
 
+    //Gt: Jecobian of the motion (3*3)
+    MatrixXd Gt = MatrixXd(3,3);
+    float rr = linearVel/angularVel;
+    double dt = 0.001；//set the delta time
+
+    double value_cos = cos(angle+angularVel*dt);
+    double value_sin = sin(angle+angularVel*dt)
+
+    Gt<<1,0,-rr*cos(angle)+rr*value_cos,
+        0,1,-rr*sin(angle)+rr*value_sin,
+        0,0,1;
+
+    int sigma_cols = Sigma.cols();
+    Sigma.topLeftCorner(3,3) = Gt*Sigma.topLeftCorner(3,3)*Gt.transpose();
+    Sigma.topRightCorner(3,sigma_cols-3) = Gt*Sigma.topRightCorner(3,sigma_cols-3);
+    Sigma.bottomLeftCorner(sigma_cols-3,3) = Sigma.topRightCorner(3,sigma_cols-3).transpose();
+    //Add R:
 }
 
 /****** TODO *********/
@@ -151,5 +169,4 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
     mu = mu + K*diff;
     Sigma = Sigma - K*H*Sigma;
     mu(2) = tools.normalize_angle(mu(2));
-
 }
