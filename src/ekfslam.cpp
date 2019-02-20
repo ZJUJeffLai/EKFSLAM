@@ -10,23 +10,25 @@
 EKFSLAM::EKFSLAM(unsigned int landmark_size,unsigned int robot_pose_size = 3,float _motion_noise = 0.1)
 {
     //full state vector(initialization)
-    mu = VectorXd::Zero(2*landmark_size + robot_pose_size,1);
-    robotSigma = MatrixXd::Zero(robot_pose_size,robot_pose_size);
-    robMapSigma = MatrixXd::Zero(robot_pose_size,2*landmark_size);
-    mapSigma = INF*MatrixXd::Identity(2*landmark_size,2*landmark_size);
-    Sigma = MatrixXd::Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
+    int ls = landmark_size;
+    int rps = robot_pose_size;
+    mu = VectorXd::Zero(2*ls + rps,1);
+    robotSigma = MatrixXd::Zero(rps,rps);
+    robMapSigma = MatrixXd::Zero(rps,2*ls);
+    mapSigma = INF*MatrixXd::Identity(2*ls,2*ls);
+    Sigma = MatrixXd::Zero(2*ls+rps,2*ls+rps);
 
-    Sigma.topLeftCorner(robot_pose_size,robot_pose_size) = robotSigma;
-    Sigma.topRightCorner(robot_pose_size,2*landmark_size) = robMapSigma;
-    Sigma.bottomLeftCorner(2*landmark_size,robot_pose_size) = robMapSigma.transpose();
-    Sigma.bottomRightCorner(2*landmark_size,2*landmark_size) = mapSigma;
+    Sigma.topLeftCorner(rps,rps) = robotSigma;
+    Sigma.topRightCorner(rps,2*ls) = robMapSigma;
+    Sigma.bottomLeftCorner(2*ls,rps) = robMapSigma.transpose();
+    Sigma.bottomRightCorner(2*ls,2*ls) = mapSigma;
 
     float motion_noise = _motion_noise;
-    R = MatrixXd:Zero(2*landmark_size+robot_pose_size,2*landmark_size+robot_pose_size);
+    R = MatrixXd:Zero(2*ls+rps,2*ls+rps);
     R.topLeftCorner(3,3)<<motion_noise,0,0,
                           0,motion_noise,0,
                           0,0,motion_noise;
-    observedLandmarks.resize(landmark_size);
+    observedLandmarks.resize(ls);
     fill(observedLandmarks.begin(),observedLandmarks.end(),false);
 }
 
