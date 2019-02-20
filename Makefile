@@ -18,7 +18,8 @@ SOURCES := $(wildcard $(SRCDIR)/*.cpp)
 INCLUDES := $(wildcard $(INCDIR)/*.h)
 INCLUDES += $(wildcard $(SRCDIR)/*.h)
 
-OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+# Dangerous, objects gets the cpp files and deletes them
+#OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 # Current directory
 CUR_PWD := $(shell pwd)
@@ -52,13 +53,13 @@ $(info $$CFLAGS is [${CFLAGS}])
 # Default rule
 all: $(TARGETS)
 
-$(BINDIR)/$(TARGET): $(OBJECTS)
-	@$(CC) $(OBJECTS) $(LFLAGS) -o $@
-	@echo "Linking complete!"
+#$(BINDIR)/$(TARGET): $(OBJECTS)
+#	@$(CC) $(OBJECTS) $(LFLAGS) -o $@
+#	@echo "Linking complete!"
 
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo "Compiled "$<" successfully!"
+#$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+#	@$(CC) $(CFLAGS) -c $< -o $@
+#	@echo "Compiled "$<" successfully!"
 
 # Dumb rules
 test_sensor_read.x:
@@ -68,6 +69,7 @@ test_sensor_read.x:
 clean:
 	@echo "CLEAN BIN: $(CUR_PWD)/$(BINDIR)"
 	$(Q)rm -f $(BINDIR)/$(TARGETS)
-	@echo "CLEAN OBJ: $(CUR_PWD)/$(OBJDIR)"
-	$(Q)rm -f $(OBJDIR)/$(OBJECTS)
+	# Don't delete object files because we are lazy
+	#@echo "CLEAN OBJ: $(CUR_PWD)/$(OBJDIR)"
+	#$(Q)rm -f $(OBJDIR)/$(OBJECTS)
 
