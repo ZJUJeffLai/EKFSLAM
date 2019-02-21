@@ -1,6 +1,7 @@
 #include "ekfslam.h"
 #include "../include/common.h"
 #include "../include/Eigen/Dense"
+
 /****** TODO *********/
     // Overloaded Constructor
     // Inputs:
@@ -46,13 +47,13 @@ void EKFSLAM::Prediction(const OdoReading& motion)
 
     //Gt: Jecobian of the motion (3*3)
     MatrixXd Gt = MatrixXd(3,3);
-    
+
     float value_cos = cos(angle+r1);
     float value_sin = sin(angle+r1);
     Gt<<1,0,-t*value_sin,
         0,1,t*value_cos,
         0,0,0;
-    
+
     mu(0) = mu(0) + t*value_cos;
     mu(1) = mu(1) + t*value_sin;
     mu(2) = mu(2) + r1 + r2;
@@ -78,7 +79,7 @@ void EKFSLAM::Prediction(const VelReading& motion)
     double angle = mu(2);
 
     //Gt: Jecobian of the motion (3*3)
-    MatrixXd Gt = MatrixXd(3,3);    
+    MatrixXd Gt = MatrixXd(3,3);
     float rr = linearVel/angularVel;
     double dt = 0.001；//set the delta time
 
@@ -87,14 +88,13 @@ void EKFSLAM::Prediction(const VelReading& motion)
 
     Gt<<1,0,-rr*cos(angle)+rr*value_cos,
         0,1,-rr*sin(angle)+rr*value_sin,
-        0,0,1;              
-    
+        0,0,1;
+
     int sigma_cols = Sigma.cols();
     Sigma.topLeftCorner(3,3) = Gt*Sigma.topLeftCorner(3,3)*Gt.transpose();
     Sigma.topRightCorner(3,sigma_cols-3) = Gt*Sigma.topRightCorner(3,sigma_cols-3);
     Sigma.bottomLeftCorner(sigma_cols-3,3) = Sigma.topRightCorner(3,sigma_cols-3).transpose();
     //Add R:
-
 }
 
 /****** TODO *********/
@@ -153,8 +153,8 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
         H.block<2,3>(2*i,0) << -sqrt(q)*deltax/q, -sqrt(q)*deltay/q, 0,
                                deltay/q, -deltax/q, -1;
         H.block<2,2>(2*i, 2*landmark_ID+1) << sqrt(q)*deltax/q, sqrt(q)*deltay/q,
-                                              -deltay/q, deltax/q; 
-        
+                                              -deltay/q, deltax/q;
+
     }
     //construct the sensor noise
     MatrixXd Q = MatrixXd:Identity(2*m,2*m)*0.01;//set as 0.01
@@ -169,7 +169,6 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
     mu = mu + K*diff;
     Sigma = Sigma - K*H*Sigma;
     mu(2) = tools.normalize_angle(mu(2));
-
 }
 
 
