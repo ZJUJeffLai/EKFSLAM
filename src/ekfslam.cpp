@@ -127,7 +127,7 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
     for (int i = 0; i < m; i++)
     {
         auto& reading = observation[i];
-        long long landmark_ID = reading.id; // id is uint64_t
+        uint64_t landmark_ID = reading.id; // id is uint64_t
         float range = reading.range;
         float bearing = reading.bearing;
 
@@ -170,4 +170,11 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
     Sigma = Sigma - K*H*Sigma;
     mu(2) = tools.normalize_angle(mu(2));
 
+}
+
+
+void EKFSLAM::ProcessMeasurement(const Record& record)
+{
+    Prediction(record.odo);
+    Correction(record.scans);
 }
