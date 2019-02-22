@@ -29,26 +29,27 @@ CC = g++
 CFLAGS := -Wall -Werror
 CFLAGS += -I$(INCDIR)
 
+# Flags: D,V,P
 # Debug flag
 ifneq ($(D),1)
-	CFLAGS += -O2
+CFLAGS += -O2
 else
-	CFLAGS += -O0
-	CFLAGS += -g
+CFLAGS += -O0
+CFLAGS += -g
 endif
 # Verbose
 ifneq ($(V),1)
-	Q = @
-	V = 0
+Q = @
+V = 0
 endif
-
 # Debug makefile
-#$(info $$CFLAGS is [${CFLAGS}])
+ifeq ($(P),1)
 $(info $$CUR_PWD is [${CUR_PWD}])
 $(info $$SOURCES is [${SOURCES}])
 $(info $$INCLUDES is [${INCLUDES}])
 $(info $$OBJECTS is [${OBJECTS}])
 $(info $$CFLAGS is [${CFLAGS}])
+endif
 
 # Default rule
 all: $(TARGETS)
@@ -63,15 +64,13 @@ all: $(TARGETS)
 
 # Dumb rules
 test_sensor_read.x:
+	@echo "Compiling test_sensor_read..."
 	$(Q)$(CC) -o bin/test_sensor_read.x src/test_sensor_read.cpp
 
 # Clean rule
 clean:
 	@echo "CLEAN BIN: $(CUR_PWD)/$(BINDIR)"
 	$(Q)rm -f $(BINDIR)/$(TARGETS)
-	# Don't delete object files because we are lazy
-	#@echo "CLEAN OBJ: $(CUR_PWD)/$(OBJDIR)"
-	#$(Q)rm -f $(OBJDIR)/$(OBJECTS)
 
 # TODO CALVIN
 # Makefile
