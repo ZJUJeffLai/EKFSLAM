@@ -7,18 +7,18 @@ using Eigen::VectorXd;
 using std::vector;
 
 
-VectorXd CalculateRMSE(const Vector<VectorXd>& estimations,
+VectorXd CalculateRMSE(const vector<VectorXd>& estimations,
                               const vector<VectorXd>& groundtruth)
 {
     VectorXd rmse(4);
     rmse<<0,0,0,0;
 
     if(estimations.size()!=groundtruth.size() || estimations.size()==0) {
-        std:cout<<"Invaild!"<<std::endl;
+        std::cout<<"Invaild!"<<std::endl;
         return rmse;
     }
 
-    for(int i =0; i<estimations.size();i++) {
+    for(unsigned int i = 0; i < estimations.size(); i++) {
         VectorXd residual = estimations[i] - groundtruth[i];
         residual = residual.array()*residual.array();
         rmse = rmse + residual;
@@ -62,6 +62,6 @@ float normalize_angle(float phi)
 void normalize_bearing(VectorXd& Z)
 {
     for(int i = 1; i < Z.size(); i = i+2) {
-        Z(i) = normalize_angle(Z(i))；
+        Z(i) = normalize_angle(Z(i));
     }
 }

@@ -37,7 +37,7 @@ CFLAGS += -I$(INCDIR)
 # Flags: D,V,P
 # Debug flag
 ifneq ($(D),1)
-CFLAGS += -O2
+#CFLAGS += -O2
 else
 CFLAGS += -O0
 CFLAGS += -g
@@ -72,22 +72,22 @@ test_sensor_read.x:
 	@echo "Compiling test_sensor_read..."
 	$(Q)$(CC) -o bin/test_sensor_read.x src/test_sensor_read.cpp
 
-# Main rule
-
-# ekfslam rule shouldn't actually make an executable for this one
-ekfslam.o: ekfslam.cpp
+# ekfslam object file
+obj/ekfslam.o: src/ekfslam.cpp
 	@echo "Compiling ekfslam..."
-	$(Q)$(CC) -o bin/ekfslam.x src/ekfslam.cpp -I include/Eigen
+	$(Q)$(CC) -c -o obj/ekfslam.o src/ekfslam.cpp -I include/Eigen
 
 # Main
-main.x: ekfslam.o
+main.x: src/main.cpp
 	@echo "Compiling main..."
-	$(Q)$(CC) $(CFLAGS) -o bin/main.x src/main.cpp -std=c++11 -I/usr/include/python2.7 -lpython2.7
+	$(Q)$(CC) $(CFLAGS) -o bin/main.x src/main.cpp src/ekfslam.cpp src/tools.cpp -std=c++11 -I/usr/include/python2.7 -lpython2.7
 
 # Clean rule
 clean:
 	@echo "CLEAN BIN: $(CUR_PWD)/$(BINDIR)"
 	$(Q)rm -f $(BINDIR)/$(TARGETS)
+	@echo "CLEAN OBJ: $(CUR_PWD)/$(OBJDIR)"
+	$(Q)rm -f $(OBJDIR)/*.*
 
 
 

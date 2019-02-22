@@ -9,6 +9,10 @@
 
 int main(int arc, char* argv[])
 {
+    if (arc != 3) {
+        std::cout << "Usage: ./main.x map_file sensor_file\n";
+        exit(1);
+    }
     string map_name = argv[1];
     string sensor_name = argv[2];
 
@@ -33,17 +37,22 @@ int main(int arc, char* argv[])
     for (unsigned int i = 0; i< measurements.data.size(); i++)
     {
         const auto& record = measurements.data[i];
-        draw.Clear();
+        try { draw.Clear(); }
+        catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
         ekfslam.ProcessMeasurement(record);
+
+
+        draw.Save("test.jpg");
+
         //Use function Plot_State
         //Plot_State(const VectorXd& mu, const MatrixXd& sigma,
         //const Mapper& mapper, const vector<bool>&observedLandmarks,
         //const vector<LaserReading>& Z)
         draw.Plot_State(ekfslam.getMu(), ekfslam.getSigma(),
                         mapper, ekfslam.getObservedLandmaks(), record.scans);
-        draw.Pause();
-        // May nee to use draw clear between frames
+        try { draw.Pause(); }
+        catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
     }
     draw.Show();
-    return -1;
+    return 0;
 }

@@ -176,9 +176,3 @@ void EKFSLAM::ProcessMeasurement(const Record& record)
     Prediction(record.odo);
     Correction(record.scans);
 }
-
-int main()
-{
-    std::cout << "Useless main function, but the file compiles!\n";
-    return 0;
-}
