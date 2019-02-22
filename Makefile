@@ -4,8 +4,8 @@ LINK = -lpython2.7
 STD = -std=c++11
 
 TARGETS := \
-	test_sensor_read.x
-	#EKFSLAM.x
+	test_sensor_read.x \
+	ekfslam.x
 	# other executables here
 
 SRCDIR = src
@@ -67,10 +67,19 @@ test_sensor_read.x:
 	@echo "Compiling test_sensor_read..."
 	$(Q)$(CC) -o bin/test_sensor_read.x src/test_sensor_read.cpp
 
+# Main rule
+
+# ekfslam rule shouldn't actually make an executable for this one
+ekfslam.x:
+	@echo "Compiling ekfslam..."
+	$(Q)$(CC) -o bin/ekfslam.x src/ekfslam.cpp -I include/Eigen
+
 # Clean rule
 clean:
 	@echo "CLEAN BIN: $(CUR_PWD)/$(BINDIR)"
 	$(Q)rm -f $(BINDIR)/$(TARGETS)
+
+
 
 # TODO CALVIN
 # Makefile
