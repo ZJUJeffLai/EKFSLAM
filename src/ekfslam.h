@@ -27,7 +27,7 @@ class EKFSLAM {
     Eigen::MatrixXd Q;
     
     // Vector of observed landmarks
-    vector<bool> observedLandmarks;
+    //vector<bool> observedLandmarks;
 
  public:
     // Default Constructor
@@ -79,4 +79,9 @@ class EKFSLAM {
     MatrixXd getSigma() const {
         return Sigma;
     }
+
+    void ProcessMeasurement(const Record& record);
+
+    // Vector of observed landmarks
+    vector<bool> observedLandmarks;
 };
