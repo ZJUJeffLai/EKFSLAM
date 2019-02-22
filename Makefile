@@ -5,7 +5,8 @@ STD = -std=c++11
 
 TARGETS := \
 	test_sensor_read.x \
-	ekfslam.x
+	main.x\
+	#ekfslam.x
 	# other executables here
 
 SRCDIR = src
@@ -73,6 +74,11 @@ test_sensor_read.x:
 ekfslam.x:
 	@echo "Compiling ekfslam..."
 	$(Q)$(CC) -o bin/ekfslam.x src/ekfslam.cpp -I include/Eigen
+
+#need Python.h ...?
+main.x:
+	@echo "Compiling main..."
+	$(Q)$(CC) -o bin/main.x src/main.cpp $(LINK)
 
 # Clean rule
 clean:
