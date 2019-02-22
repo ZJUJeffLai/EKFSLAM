@@ -18,6 +18,10 @@ SOURCES := $(wildcard $(SRCDIR)/*.cpp)
 
 INCLUDES := $(wildcard $(INCDIR)/*.h)
 INCLUDES += $(wildcard $(SRCDIR)/*.h)
+# Gets python?
+INCLUDES += $(wildcard $(IDIR)/*.h)
+# Not useful
+INCLUDES += $(IDIR)
 
 # Dangerous, objects gets the cpp files and deletes them
 #OBJECTS := $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
@@ -71,14 +75,14 @@ test_sensor_read.x:
 # Main rule
 
 # ekfslam rule shouldn't actually make an executable for this one
-ekfslam.x:
+ekfslam.o: ekfslam.cpp
 	@echo "Compiling ekfslam..."
 	$(Q)$(CC) -o bin/ekfslam.x src/ekfslam.cpp -I include/Eigen
 
-#need Python.h ...?
-main.x:
+# Main
+main.x: ekfslam.o
 	@echo "Compiling main..."
-	$(Q)$(CC) -o bin/main.x src/main.cpp $(LINK)
+	$(Q)$(CC) $(CFLAGS) -o bin/main.x src/main.cpp -std=c++11 -I/usr/include/python2.7 -lpython2.7
 
 # Clean rule
 clean:

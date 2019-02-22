@@ -4,6 +4,7 @@
 #include "./sensor_info.h"
 #include "helper/chisquare.h"
 #include "helper/matplotlibcpp.h"
+
 namespace plt = matplotlibcpp;
 
 class Draw {
@@ -40,7 +41,7 @@ void DrawEllipse(const Eigen::VectorXd& X, float a, float b, string color) {
     plt::plot(Px, Py, color);
 }
 
-void  DrawProbEllipse(VectorXd x, const MatrixXd& C,
+void DrawProbEllipse(VectorXd x, const MatrixXd& C,
     float alpha, string color) {
     float sxx = C(0, 0), syy = C(1, 1), sxy = C(0, 1);
     float a = sqrt(0.5*(sxx+syy+sqrt(pow(sxx-syy, 2)+
@@ -66,7 +67,7 @@ void  DrawProbEllipse(VectorXd x, const MatrixXd& C,
     else if (sxy < 0)
       angle = -M_PI/4;
     x(2) = angle;
-    Drawellipse(x, a, b, color);
+    DrawEllipse(x, a, b, color);
 }
 
 void DrawLandMarks(const Mapper& mapper) {
@@ -103,7 +104,7 @@ void Plot_State(const VectorXd& mu, const MatrixXd& sigma,
     DrawProbEllipse(rob, sigma, 0.6, "r");
     DrawLandMarks(mapper);
 
-    for (int i = 0; i < observedLandmarks.size(); i++) {
+    for (unsigned int i = 0; i < observedLandmarks.size(); i++) {
     if (observedLandmarks[i]) {
         vector<float> X, Y;
         X.push_back(mu(2*i + 3));
@@ -114,11 +115,11 @@ void Plot_State(const VectorXd& mu, const MatrixXd& sigma,
         MatrixXd sig = MatrixXd(2, 2);
         sig << sigma(2*i+3, 2*i+3), sigma(2*i+3, 2*i+4),
             sigma(2*i+4, 2*i+3), sigma(2*i+4, 2*i+4);
-        Drawprobellipse(m, sig, 0.6, "b");
+        DrawProbEllipse(m, sig, 0.6, "b");
         }
     }
     // draw observation lines
-    for (int i = 0; i < Z.size(); i++) {
+    for (unsigned int i = 0; i < Z.size(); i++) {
         vector<float> X, Y;
         X.push_back(mu(0));
         Y.push_back(mu(1));
@@ -127,7 +128,7 @@ void Plot_State(const VectorXd& mu, const MatrixXd& sigma,
         plt::plot(X, Y, "k");
     }
 
-    Drawellipse(rob, 0.15, 0.15, "r");
+    DrawEllipse(rob, 0.15, 0.15, "r");
   }
 
 void Pause() {

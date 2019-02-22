@@ -30,7 +30,7 @@ int main(int arc, char* argv[])
     // input: landmark_size, the other two inputs have been set as certain numbers
     EKFSLAM ekfslam(mapper.data.size());
 
-    for (int i = 0; i< measurements.data.size(); i++)
+    for (unsigned int i = 0; i< measurements.data.size(); i++)
     {
         const auto& record = measurements.data[i];
         draw.Clear();
@@ -39,7 +39,8 @@ int main(int arc, char* argv[])
         //Plot_State(const VectorXd& mu, const MatrixXd& sigma,
         //const Mapper& mapper, const vector<bool>&observedLandmarks,
         //const vector<LaserReading>& Z)
-        draw.Plot_State(ekfslam.mu, ekfslam.Sigma, mapper, ekfslam.observedLandmarks, record.scans);
+        draw.Plot_State(ekfslam.getMu(), ekfslam.getSigma(),
+                        mapper, ekfslam.getObservedLandmaks(), record.scans);
         draw.Pause();
         // May nee to use draw clear between frames
     }

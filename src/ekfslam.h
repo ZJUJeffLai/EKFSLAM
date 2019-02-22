@@ -81,4 +81,8 @@ class EKFSLAM {
     MatrixXd getSigma() const {
         return Sigma;
     }
+
+    vector<bool> getObservedLandmaks() const {
+        return observedLandmarks;
+    }
 };
