@@ -41,7 +41,6 @@ int main(int arc, char* argv[])
         catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
         ekfslam.ProcessMeasurement(record);
 
-
         draw.Save("test.jpg");
 
         //Use function Plot_State

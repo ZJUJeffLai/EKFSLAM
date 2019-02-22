@@ -85,4 +85,6 @@ class EKFSLAM {
     vector<bool> getObservedLandmaks() const {
         return observedLandmarks;
     }
+  
+    void ProcessMeasurement(const Record& record);
 };
