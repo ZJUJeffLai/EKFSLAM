@@ -7,27 +7,27 @@ class EKFSLAM {
  private:
     // Covariance Matrix for robot state variables
     Eigen::MatrixXd robotSigma;
-    
+
     // Covariance Matrix for robot to landmarks
     Eigen::MatrixXd robMapSigma;
-    
+
     // Covariances of landmark positions wrt to each other
     Eigen::MatrixXd mapSigma;
-    
+
     // Full Covariance Matrix
     Eigen::MatrixXd Sigma;
-    
+
     // Full State Vector
     Eigen::VectorXd mu;
-    
+
     // Noise Matrix due to motion
     Eigen::MatrixXd R;
-    
+
     // Noise Matrix due to sensors
     Eigen::MatrixXd Q;
-    
+
     // Vector of observed landmarks
-    //vector<bool> observedLandmarks;
+    vector<bool> observedLandmarks;
 
  public:
     // Default Constructor
@@ -39,12 +39,11 @@ class EKFSLAM {
     // landmark_size - number of landmarks on the map
     // robot_pose_size - number of state variables to track on the robot
     // motion_noise - amount of noise to add due to motion
-    EKFSLAM(unsigned int landmark_size,
-        unsigned int robot_pose_size = 3,
-        float _motion_noise = 0.1);
+    EKFSLAM(unsigned int landmark_size, unsigned int robot_pose_size = 3,
+        float motion_noise = 0.1);
 
     // Standard Destructor
-    virtual ~EKFSLAM();
+    ~EKFSLAM() {}
 
 
     /****** TODO *********/
@@ -72,6 +71,9 @@ class EKFSLAM {
     // observation - vector containing all observed landmarks from a laser scanner
     void Correction(const vector<LaserReading>& observation);
 
+    // Runs prediction and correction on a record
+    void ProcessMeasurement(const Record& record);
+
     VectorXd getMu() const {
         return mu;
     }
@@ -80,8 +82,9 @@ class EKFSLAM {
         return Sigma;
     }
 
+    vector<bool> getObservedLandmaks() const {
+        return observedLandmarks;
+    }
+  
     void ProcessMeasurement(const Record& record);
-
-    // Vector of observed landmarks
-    vector<bool> observedLandmarks;
 };
