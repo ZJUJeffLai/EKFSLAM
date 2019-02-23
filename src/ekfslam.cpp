@@ -3,7 +3,6 @@
 #include "tools.h"
 #include "../include/common.h"
 #include "../include/Eigen/Dense"
-#include <ctime>
 
 /****** TODO *********/
     // Overloaded Constructor
@@ -20,7 +19,7 @@ EKFSLAM::EKFSLAM(unsigned int landmark_size, unsigned int robot_pose_size, float
     robotSigma = MatrixXd::Zero(rps, rps);
     robMapSigma = MatrixXd::Zero(rps, 2*ls);
     mapSigma = INF * MatrixXd::Identity(2*ls, 2*ls);
-    Sigma = MatrixXd::Zero(2*ls + rps, 2*ls+rps);
+    Sigma = MatrixXd::Zero(2*ls + rps, 2*ls + rps);
 
     Sigma.topLeftCorner(rps, rps) = robotSigma;
     Sigma.topRightCorner(rps, 2*ls) = robMapSigma;
@@ -61,8 +60,8 @@ void EKFSLAM::Prediction(const OdoReading& motion)
     mu(2) = mu(2) + r1 + r2;
 
     int sigma_cols = Sigma.cols();
-    Sigma.topLeftCorner(3, 3) = Gt*Sigma.topLeftCorner(3, 3)*Gt.transpose();
-    Sigma.topRightCorner(3, sigma_cols - 3) = Gt*Sigma.topRightCorner(3, sigma_cols - 3);
+    Sigma.topLeftCorner(3, 3) = Gt * Sigma.topLeftCorner(3, 3) * Gt.transpose();
+    Sigma.topRightCorner(3, sigma_cols - 3) = Gt * Sigma.topRightCorner(3, sigma_cols - 3);
     Sigma.bottomLeftCorner(sigma_cols - 3, 3) = Sigma.topRightCorner(3, sigma_cols - 3).transpose();
 
     Sigma = Sigma + R;
@@ -109,7 +108,6 @@ void EKFSLAM::Prediction(const OdoReading& odom, const VelReading& vel)
 
 }
 
-
 /****** TODO *********/
     // Description: Correction step for EKF
     // Inputs:
@@ -151,19 +149,21 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
         expectedZ(2*i) = sqrt(q);
         //arctan(y/x)
         expectedZ(2*i + 1) = atan2(deltay, deltax) - mu(2);
+
         H.block<2, 3>(2*i, 0) << -sqrt(q)*deltax/q, -sqrt(q)*deltay/q, 0,
                                   deltay/q        , -deltax/q        ,-1;
+
         H.block<2, 2>(2*i, 2*landmark_ID + 1) << sqrt(q)*deltax/q, sqrt(q)*deltay/q,
                                                 -deltay/q        , deltax/q;
 
     }
     // Construct the sensor noise
-    MatrixXd Q = MatrixXd::Identity(2*m, 2*m)*0.01; // Set as 0.01
+    MatrixXd Q = MatrixXd::Identity(2*m, 2*m) * 0.01; // Set as 0.01
     // Compute the Kalman gain
     MatrixXd Ht = H.transpose();
-    MatrixXd HQ = (H*Sigma*Ht) + Q;
+    MatrixXd HQ = (H * Sigma * Ht) + Q;
     MatrixXd Si = HQ.inverse();
-    MatrixXd K = Sigma*Ht*Si;
+    MatrixXd K = Sigma * Ht * Si;
 
     VectorXd diff = Z - expectedZ;
     normalize_bearing(diff);    // From tools.h
@@ -174,17 +174,6 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
 
 void EKFSLAM::ProcessMeasurement(const Record& record)
 {
-    clock_t start = clock();
     Prediction(record.odo);
-    clock_t end = clock();
-    double time_pre = double(end - start) / CLOCKS_PER_SEC;
-
-    start = clock();
     Correction(record.scans);
-    end = clock();
-    double time_cor = double(end - start) / CLOCKS_PER_SEC;
-
-
-    std::cout << "Time from predict: " << time_pre << std::endl;
-    std::cout << "Time from correct: " << time_cor << "\n\n";
 }

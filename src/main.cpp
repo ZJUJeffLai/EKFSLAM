@@ -8,67 +8,79 @@
 #include "ekfslam.h"
 #include <ctime>
 
+double calc_time(clock_t start, clock_t end)
+{
+    return double(end - start) / CLOCKS_PER_SEC;
+}
+
 int main(int arc, char* argv[])
 {
-    if (arc != 3) {
-        std::cout << "Usage: ./main.x map_file sensor_file\n";
+    if (arc < 3 || arc > 4) {
+        std::cerr << "Usage: ./main.x map_file sensor_file [true/false]\n";
+        std::cerr << "The last argument will time the program if set to true\n";
         exit(1);
     }
     string map_name = argv[1];
     string sensor_name = argv[2];
+    string time;
+    if (arc == 4)
+        time = argv[3];
+    else
+        time = "false";
+    bool time_prog = false;
+    if (time == "true")
+        time_prog = true;
 
-    // read all landmarks for the map
-    // class Mapper from mapper.h
+    // Read all landmarks for the map
     Mapper mapper;
     mapper.initialize(map_name);
 
-    // read the measurements(odometry and radar)
-    // class MeasurementPackage from sensor_info.h
+    // Read the measurements(odometry and radar)
     MeasurementPackage measurements;
     measurements.initialize(sensor_name);
-    cout << measurements.data.size() << endl;
+    std::cout << measurements.data.size() << std::endl;
 
-    // class Draw from plotter.h
-    Draw draw;
-
-    // class EKFSLAM form ekfslam.h
-    // input: landmark_size, the other two inputs have been set as certain numbers
+    // Input: landmark_size, the other two inputs have been set as certain numbers
     EKFSLAM ekfslam(mapper.data.size());
 
-    for (unsigned int i = 0; i< measurements.data.size(); i++)
-    {
+    // Matplotlib window class
+    Draw draw;
+    draw.Show();
+
+    clock_t start;
+
+    for (unsigned int i = 0; i< measurements.data.size(); i++) {
         const auto& record = measurements.data[i];
-
-        //try { draw.Clear(); }
-        //catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
+        start = clock();
+        // Reset the frame
         draw.Clear();
-
-        clock_t start = clock();
-        ekfslam.ProcessMeasurement(record);
-        clock_t end = clock();
-        double time_pro = double(end - start) / CLOCKS_PER_SEC;
-
-
-        //Use function Plot_State
-        //Plot_State(const VectorXd& mu, const MatrixXd& sigma,
-        //const Mapper& mapper, const vector<bool>&observedLandmarks,
-        //const vector<LaserReading>& Z)
+        double time_clear = calc_time(start, clock());
 
         start = clock();
+        // Step the kalman filter
+        ekfslam.ProcessMeasurement(record);
+        double time_pro = calc_time(start, clock());
+
+        start = clock();
+        // Draw current state
         draw.Plot_State(ekfslam.getMu(), ekfslam.getSigma(),
                         mapper, ekfslam.getObservedLandmaks(), record.scans);
-        end = clock();
-        double time_plt = double(end - start) / CLOCKS_PER_SEC;
+        double time_plt = calc_time(start, clock());
 
-        std::cout << "Time from process: " << time_pro << std::endl;
-        std::cout << "Time from plot: " << time_plt << std::endl;
-
-        //draw.Save("test.png");
-
-        //try { draw.Pause(); }
-        //catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
+        // Wait a little bit
+        start = clock();
         draw.Pause();
+        double time_pause = calc_time(start, clock());
+
+        if (time_prog) {
+            std::cout << "Time clear:\t" << time_clear << std::endl;
+            std::cout << "Time process\t: " << time_pro << std::endl;
+            std::cout << "Time plot:\t" << time_plt << std::endl;
+            std::cout << "Time pause:\t" << time_pause << "\n\n";
+        }
     }
-    draw.Show();
+    // Save the frame to picture
+    draw.Save("last_frame.png");
+
     return 0;
 }

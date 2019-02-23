@@ -8,16 +8,16 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using namespace std;
 
-//calculate RMSE
+// Calculate RMSE
 VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &groundtruth);
 
-//calculate Jacobians
+// Calculate Jacobians
 MatrixXd CalculateJacobian(const VectorXd& x_state);
 
-//Normalize the angle
+// Normalize the angle
 float normalize_angle(float phi);
 
-//normalize the bearing
+// Normalize the bearing
 void normalize_bearing(VectorXd& Z);
 
 #endif
