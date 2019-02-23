@@ -3,6 +3,7 @@
 #include "tools.h"
 #include "../include/common.h"
 #include "../include/Eigen/Dense"
+#include <ctime>
 
 /****** TODO *********/
     // Overloaded Constructor
@@ -173,6 +174,17 @@ void EKFSLAM::Correction(const vector<LaserReading>& observation)
 
 void EKFSLAM::ProcessMeasurement(const Record& record)
 {
+    clock_t start = clock();
     Prediction(record.odo);
+    clock_t end = clock();
+    double time_pre = double(end - start) / CLOCKS_PER_SEC;
+
+    start = clock();
     Correction(record.scans);
+    end = clock();
+    double time_cor = double(end - start) / CLOCKS_PER_SEC;
+
+
+    std::cout << "Time from predict: " << time_pre << std::endl;
+    std::cout << "Time from correct: " << time_cor << "\n\n";
 }

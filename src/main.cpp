@@ -6,6 +6,7 @@
 #include "../include/plotter.h"
 #include "../include/sensor_info.h"
 #include "ekfslam.h"
+#include <ctime>
 
 int main(int arc, char* argv[])
 {
@@ -37,20 +38,36 @@ int main(int arc, char* argv[])
     for (unsigned int i = 0; i< measurements.data.size(); i++)
     {
         const auto& record = measurements.data[i];
-        try { draw.Clear(); }
-        catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
-        ekfslam.ProcessMeasurement(record);
 
-        draw.Save("test.jpg");
+        //try { draw.Clear(); }
+        //catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
+        draw.Clear();
+
+        clock_t start = clock();
+        ekfslam.ProcessMeasurement(record);
+        clock_t end = clock();
+        double time_pro = double(end - start) / CLOCKS_PER_SEC;
+
 
         //Use function Plot_State
         //Plot_State(const VectorXd& mu, const MatrixXd& sigma,
         //const Mapper& mapper, const vector<bool>&observedLandmarks,
         //const vector<LaserReading>& Z)
+
+        start = clock();
         draw.Plot_State(ekfslam.getMu(), ekfslam.getSigma(),
                         mapper, ekfslam.getObservedLandmaks(), record.scans);
-        try { draw.Pause(); }
-        catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
+        end = clock();
+        double time_plt = double(end - start) / CLOCKS_PER_SEC;
+
+        std::cout << "Time from process: " << time_pro << std::endl;
+        std::cout << "Time from plot: " << time_plt << std::endl;
+
+        //draw.Save("test.png");
+
+        //try { draw.Pause(); }
+        //catch (...) {std::cout << "X11 forwarding not setup, window doesn't exist\n";}
+        draw.Pause();
     }
     draw.Show();
     return 0;

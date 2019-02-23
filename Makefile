@@ -37,7 +37,7 @@ CFLAGS += -I$(INCDIR)
 # Flags: D,V,P
 # Debug flag
 ifneq ($(D),1)
-#CFLAGS += -O2
+CFLAGS += -O2
 else
 CFLAGS += -O0
 CFLAGS += -g
