@@ -176,10 +176,3 @@ void EKFSLAM::ProcessMeasurement(const Record& record)
     Prediction(record.odo);
     Correction(record.scans);
 }
-
-
-void EKFSLAM::ProcessMeasurement(const Record& record)
-{
-    Prediction(record.odo);
-    Correction(record.scans);
-}

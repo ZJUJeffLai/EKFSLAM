@@ -4,8 +4,8 @@ LINK = -lpython2.7
 STD = -std=c++11
 
 TARGETS := \
-	test_sensor_read.x \
-	main.x\
+	test_sensor_read \
+	main\
 	#ekfslam.x
 	# other executables here
 
@@ -68,9 +68,9 @@ all: $(TARGETS)
 #	@echo "Compiled "$<" successfully!"
 
 # Dumb rules
-test_sensor_read.x:
+test_sensor_read:
 	@echo "Compiling test_sensor_read..."
-	$(Q)$(CC) -o bin/test_sensor_read.x src/test_sensor_read.cpp
+	$(Q)$(CC) -o bin/test_sensor_read src/test_sensor_read.cpp
 
 # ekfslam object file
 obj/ekfslam.o: src/ekfslam.cpp
@@ -78,9 +78,9 @@ obj/ekfslam.o: src/ekfslam.cpp
 	$(Q)$(CC) -c -o obj/ekfslam.o src/ekfslam.cpp -I include/Eigen
 
 # Main
-main.x: src/main.cpp
+main: src/main.cpp
 	@echo "Compiling main..."
-	$(Q)$(CC) $(CFLAGS) -o bin/main.x src/main.cpp src/ekfslam.cpp src/tools.cpp -std=c++11 -I/usr/include/python2.7 -lpython2.7
+	$(Q)$(CC) $(CFLAGS) -o bin/main src/main.cpp src/ekfslam.cpp src/tools.cpp -std=c++11 -I/usr/include/python2.7 -lpython2.7
 
 # Clean rule
 clean:
