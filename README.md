@@ -1,4 +1,4 @@
-# Lab 5: EKF-SLAM
+#  EKF-SLAM
 In lab for this week, you will implement SLAM both in
 simulation as well as on the car. The first phase requires
 that you implement a standard Extended Kalman Filter in
